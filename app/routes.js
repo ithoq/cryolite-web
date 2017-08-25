@@ -15,11 +15,19 @@ const loadModule = (cb) => (componentModule) => {
 export default function createRoutes(store) {
   // Create reusable async injectors using getAsyncInjectors factory
   const { injectReducer, injectSagas } = getAsyncInjectors(store); // eslint-disable-line no-unused-vars
-
+  
+  const importAppModules = Promise.all([import('containers/App/reducer'), import('containers/App/sagas')]);
+  
+  importAppModules.then(([appReducer, appSagas]) => {
+    injectSagas(appSagas.default);
+  });
+  
+  importAppModules.catch(errorLoading);
+  
   return [
     {
       path: '/',
-      name: 'home',
+      name: 'homePage',
       getComponent(nextState, cb) {
         const importModules = Promise.all([
           import('containers/HomePage'),

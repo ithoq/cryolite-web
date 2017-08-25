@@ -1,0 +1,16 @@
+.notification-toggle {
+  left: initial;
+  right: 0;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.shopping-cart {
+  line-height: 42px !important;
+}
+
+.shopping-cart .bubble {
+  top: 8px !important;
+}

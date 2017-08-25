@@ -24,7 +24,6 @@ module.exports = (options) => ({
       // they will be a part of our compilation either way.
       // So, no need for ExtractTextPlugin here.
       test: /\.css$/,
-      include: /node_modules/,
       loaders: ['style-loader', 'css-loader'],
     }, {
       test: /\.(eot|svg|ttf|woff|woff2)$/,
@@ -58,12 +57,18 @@ module.exports = (options) => ({
       query: {
         limit: 10000,
       },
+    }, {
+      test: /modernizr\.custom\.js$/,
+      loader: "imports-loader?this=>window!exports-loader?window.Modernizr"
     }],
   },
   plugins: options.plugins.concat([
     new webpack.ProvidePlugin({
       // make fetch available
       fetch: 'exports-loader?self.fetch!whatwg-fetch',
+      $: "jquery",
+      jQuery: "jquery",
+      "jquery": "jquery"
     }),
 
     // Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
@@ -78,6 +83,9 @@ module.exports = (options) => ({
   ]),
   resolve: {
     modules: ['app', 'node_modules'],
+    alias: {
+      appConfig: path.join(__dirname, `../../config/appConfig.${process.env.NODE_ENV || 'development'}.js`)
+    },
     extensions: [
       '.js',
       '.jsx',

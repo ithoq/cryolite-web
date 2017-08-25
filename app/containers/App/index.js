@@ -12,18 +12,46 @@
  */
 
 import React from 'react';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+import _ from 'lodash';
+import config from 'appConfig';
 
-export default class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+import AppHeader from '../../components/AppHeader';
+
+import * as actions from './actions';
+import * as selectors from './selectors';
+
+export class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   static propTypes = {
+    dispatch: React.PropTypes.func.isRequired,
     children: React.PropTypes.node,
   };
+  
+  componentWillMount() {
+    this.props.dispatch(actions.defaultAction());
+  }
 
   render() {
     return (
-      <div>
+      <section>
+        <AppHeader/>
+        
         {React.Children.toArray(this.props.children)}
-      </div>
+      </section>
     );
   }
 }
+
+let mapStateToProps = createStructuredSelector({
+  locationState: selectors.makeSelectLocationState(),
+});
+
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch,
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
