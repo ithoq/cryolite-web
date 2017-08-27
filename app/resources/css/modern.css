@@ -5469,7 +5469,7 @@ body > .pgn-wrapper {
   transform: translate3d(100%, 0, 0);
   -ms-transform: translate(100%, 0);
 }
-.modal.fade.slide-right .modal-dialog .modal-content-wrapper {
+.modal.fade.slide-right .modal-dialog {
   height: 100%;
 }
 .modal.fade.slide-right .modal-dialog .modal-content {
@@ -5477,7 +5477,14 @@ body > .pgn-wrapper {
 }
 .modal.fade.slide-right .modal-dialog .modal-body {
   background-color: #fff;
+  height: 100%;
 }
+
+.modal.fade.slide-right .modal-dialog .modal-body .container,
+.modal.fade.slide-right .modal-dialog .modal-body .container .row {
+  height: 100%;
+}
+
 .modal.fade.slide-right .modal-content {
   border-radius: 0px;
 }

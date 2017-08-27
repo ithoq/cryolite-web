@@ -166,3 +166,15 @@ export function initHorizontalMenu() {
     },timingSpeed);
   }
 }
+
+export function initShoppingCart() {
+  $('body').on('click', '.notification-list .dropdown-menu', function(event) {
+    event.stopPropagation();
+  });
+  $('body').on('click', '.toggle-more-details', function(event) {
+    let p = $(this).closest('.heading');
+    p.closest('.heading').children('.more-details').stop().slideToggle('fast', function() {
+      p.toggleClass('open');
+    });
+  });
+}

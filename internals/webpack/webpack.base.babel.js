@@ -60,6 +60,9 @@ module.exports = (options) => ({
     }, {
       test: /modernizr\.custom\.js$/,
       loader: "imports-loader?this=>window!exports-loader?window.Modernizr"
+    }, {
+      test: /bootstrap\.js$/,
+      loader: "imports-loader?this=>window!exports-loader?window.Tether"
     }],
   },
   plugins: options.plugins.concat([
@@ -68,9 +71,10 @@ module.exports = (options) => ({
       fetch: 'exports-loader?self.fetch!whatwg-fetch',
       $: "jquery",
       jQuery: "jquery",
-      "jquery": "jquery"
+      "jquery": "jquery",
+      "Tether": 'tether'
     }),
-
+    
     // Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
     // inside your code for any environment checks; UglifyJS will automatically
     // drop any unreachable code.

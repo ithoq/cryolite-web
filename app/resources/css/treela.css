@@ -1,14 +1,25 @@
-.notification-toggle {
+.shopping-cart .dropdown-menu {
   left: initial;
   right: 0;
 }
 
 .clickable {
   cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .shopping-cart {
   line-height: 42px !important;
+}
+
+.shopping-cart > * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .shopping-cart .bubble {

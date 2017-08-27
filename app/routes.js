@@ -26,16 +26,57 @@ export default function createRoutes(store) {
   
   return [
     {
-      path: '/',
-      name: 'homePage',
+      path: '/shop',
+      name: 'shopPage',
       getComponent(nextState, cb) {
         const importModules = Promise.all([
-          import('containers/HomePage'),
+          import('containers/ShopPage/reducer'),
+          import('containers/ShopPage/sagas'),
+          import('containers/ShopPage'),
+        ]);
+    
+        const renderRoute = loadModule(cb);
+    
+        importModules.then(([reducer, sagas, component]) => {
+          injectReducer('shopPage', reducer.default);
+          injectSagas(sagas.default);
+          renderRoute(component);
+        });
+    
+        importModules.catch(errorLoading);
+      },
+      childRoutes: [{
+        path: '/shop/home',
+        name: 'homePage',
+        getComponent(nextState, cb) {
+          const importModules = Promise.all([
+            import('containers/HomePage'),
+          ]);
+    
+          const renderRoute = loadModule(cb);
+    
+          importModules.then(([component]) => {
+            renderRoute(component);
+          });
+    
+          importModules.catch(errorLoading);
+        }
+      }]
+    }, {
+      path: '/account',
+      name: 'accountPage',
+      getComponent(nextState, cb) {
+        const importModules = Promise.all([
+          import('containers/AccountPage/reducer'),
+          import('containers/AccountPage/sagas'),
+          import('containers/AccountPage'),
         ]);
 
         const renderRoute = loadModule(cb);
 
-        importModules.then(([component]) => {
+        importModules.then(([reducer, sagas, component]) => {
+          injectReducer('accountPage', reducer.default);
+          injectSagas(sagas.default);
           renderRoute(component);
         });
 

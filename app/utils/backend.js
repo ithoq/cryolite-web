@@ -5,9 +5,9 @@
  * Author: Akshay Kr Singh <akshay.scythe@gmail.com>
  */
 import 'whatwg-fetch';
-import restful, { fetchBackend } from 'restful.js';
+import axios from 'axios';
 import config from 'appConfig';
 
-export default function() {
-  return restful(config.apiUrl(), fetchBackend(fetch));
-}
+axios.defaults.baseURL = config.apiUrl();
+
+export {axios};
