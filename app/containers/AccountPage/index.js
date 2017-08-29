@@ -14,6 +14,15 @@ import makeSelectAccountPage from './selectors';
 import messages from './messages';
 
 export class AccountPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+    
+    
+  }
+  
+  static propTypes = {
+    dispatch: PropTypes.func.isRequired,
+  };
   
   componentWillMount() {
     this.props.dispatch(actions.defaultAction());
@@ -28,12 +37,8 @@ export class AccountPage extends React.PureComponent { // eslint-disable-line re
   }
 }
 
-AccountPage.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = createStructuredSelector({
-  AccountPage: makeSelectAccountPage(),
+  accountPage: makeSelectAccountPage(),
 });
 
 function mapDispatchToProps(dispatch) {

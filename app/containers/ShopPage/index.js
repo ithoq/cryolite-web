@@ -15,16 +15,20 @@ import * as appConstants from '../App/constants';
 import { checkIsUserLoggedIn, performUserLogin } from "../App/actions";
 import { makeSelectUserState, makeSelectUserInfo } from "../App/selectors";
 
+import { getCategories } from './actions';
+import * as constants from './constants';
 import makeSelectShopPage from './selectors';
 import messages from './messages';
 
 import AppHeader from '../../components/AppHeader';
+import * as appHeaderConstants from '../../components/AppHeader/constants';
 
 export class ShopPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
   
     this._checkLocation = this._checkLocation.bind(this);
+    this._renderAppHeader = this._renderAppHeader.bind(this);
     this._performUserLogin = this._performUserLogin.bind(this);
   }
   
@@ -44,9 +48,10 @@ export class ShopPage extends React.PureComponent { // eslint-disable-line react
     const { dispatch } = this.props;
     
     dispatch(checkIsUserLoggedIn());
+    dispatch(getCategories());
     
     if ( this._checkLocation('/shop') ) {
-      return browserHistory.push('/shop/home')
+      return browserHistory.push('/shop/home');
     }
   }
   
@@ -54,8 +59,23 @@ export class ShopPage extends React.PureComponent { // eslint-disable-line react
     this.props.dispatch(performUserLogin(mode, credentials));
   }
   
+  _renderAppHeader() {
+    const { shopState, userState, userInfo } = this.props;
+    const categories = shopState.getIn(['categories', 'info']);
+    const categoryState = shopState.getIn(['categories', 'state']);
+    
+    if (categories.isEmpty() || categoryState !== constants.CATEGORIES_STATE_FETCHED) {
+      return null;
+    }
+    
+    return (
+      <AppHeader userState={userState} onLoginClick={this._performUserLogin}
+                 user={userInfo} menuType={appHeaderConstants.MENU_TYPE_SHOP} menu={categories} />
+    )
+  }
+  
   render() {
-    const { children, userState, userInfo } = this.props;
+    const { children, userState } = this.props;
   
     if ( userState === appConstants.USER_STATE_DEFAULT ) {
       return (
@@ -66,8 +86,7 @@ export class ShopPage extends React.PureComponent { // eslint-disable-line react
     if ( _.isEmpty(children) ) {
       return (
         <section>
-          <AppHeader userState={userState} onLoginClick={this._performUserLogin} user={userInfo} />
-          
+          {this._renderAppHeader()}
           <FormattedMessage {...messages.header} />
         </section>
       );
@@ -75,8 +94,7 @@ export class ShopPage extends React.PureComponent { // eslint-disable-line react
     
     return (
       <section>
-        <AppHeader userState={userState} onLoginClick={this._performUserLogin} user={userInfo} />
-        
+        {this._renderAppHeader()}
         {React.Children.toArray(children)}
       </section>
     );

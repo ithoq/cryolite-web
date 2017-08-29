@@ -39,5 +39,5 @@ export function setCookie(key, value) {
 }
 
 export function deleteCookie(key) {
-  cookie.remove(key, {domain: config.domain});
+  cookie.remove(key, {domain: config.domain, path: '/'});
 }

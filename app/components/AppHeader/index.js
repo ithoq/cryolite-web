@@ -9,10 +9,16 @@ import { Modal, ModalBody } from 'reactstrap';
 import Avatar from 'react-avatar';
 
 import * as appConstants from '../../containers/App/constants';
+import * as constants from './constants';
 
 import ShopHorizontalMenu from '../ShopHorizontalMenu';
+import Navigator from '../Navigator';
+import A from '../A';
 
 import { staticImages } from "../../utils/importAll";
+import { getCookie, deleteCookie } from "../../utils/cookies";
+
+import config from 'appConfig';
 
 class AppHeader extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -33,12 +39,16 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
     this._renderUserPanel = this._renderUserPanel.bind(this);
     this._renderLoginPanelModal = this._renderLoginPanelModal.bind(this);
     this._onLoginClick = this._onLoginClick.bind(this);
+    this._renderSubMenu = this._renderSubMenu.bind(this);
+    this._logout = this._logout.bind(this);
   }
   
   static propTypes = {
     userState: PropTypes.string.isRequired,
     onLoginClick: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
+    menuType: PropTypes.string.isRequired,
+    menu: PropTypes.object,
   };
   
   _toggleDropdown(key) {
@@ -59,10 +69,15 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
     };
   }
   
+  _logout() {
+    const access_token = getCookie('access_token', true);
+    ['roles', 'access_token', 'userId'].forEach(key => deleteCookie(key));
+    window.location.href = `${config.hostUrl}/auth/logout/${access_token}`;
+  }
+  
   _renderUserPanel() {
     const { userState, user } = this.props;
     const { isProfileOpen } = this.state;
-    const userIdentity = user.get('identities').get(0);
     
     if ( userState === appConstants.USER_STATE_NOT_LOGGED_IN ) {
       return (
@@ -80,6 +95,8 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
     }
     
     if (userState === appConstants.USER_STATE_LOGGED_IN) {
+      const userIdentity = user.get('identities').get(0);
+      
       return (
         <div className="d-flex align-items-center">
           <div className="pull-left p-r-10 fs-14 font-heading hidden-md-down text-white">
@@ -97,10 +114,13 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
             </button>
             
             <DropdownMenu className="dropdown-menu-right profile-dropdown">
-              <a href="#" className="dropdown-item"><i className="pg-settings_small"/> Settings</a>
+              <A href={['shop', 'account']} className="dropdown-item clickable"
+                 onClicked={this._toggleDropdown('isProfileOpen')}>
+                <i className="pg-settings_small"/> My Account
+              </A>
               <a href="#" className="dropdown-item"><i className="pg-outdent"/> Feedback</a>
               <a href="#" className="dropdown-item"><i className="pg-signals"/> Help</a>
-              <a href="#" className="clearfix bg-master-lighter dropdown-item">
+              <a className="clearfix bg-master-lighter dropdown-item clickable" onClick={this._logout}>
                 <span className="pull-left">Logout</span>
                 <span className="pull-right"><i className="pg-power"/></span>
               </a>
@@ -163,6 +183,16 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
     )
   }
   
+  _renderSubMenu() {
+    const { menuType, menu } = this.props;
+    
+    if (menuType === constants.MENU_TYPE_SHOP) {
+      return (<ShopHorizontalMenu menu={menu} />)
+    }
+    
+    return null; //TODO add admin menu
+  }
+  
   render() {
     return (
       <div className="header p-r-0 bg-primary">
@@ -171,9 +201,11 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
              data-toggle="horizontal-menu"/>
           <div className="">
             <div className="brand inline no-border hidden-xs-down">
-              <img src={staticImages['root']['logo_white.png']} alt="logo"
-                   data-src={staticImages['root']['logo_white.png']}
-                   data-src-retina={staticImages['root']['logo_white_2x.png']} width="78" height="22"/>
+              <Navigator href={['shop', 'home']}>
+                <img src={staticImages['root']['logo_white.png']} alt="logo"
+                     data-src={staticImages['root']['logo_white.png']}
+                     data-src-retina={staticImages['root']['logo_white_2x.png']} width="78" height="22"/>
+              </Navigator>
             </div>
             
             <a href="#" className="search-link hidden-md-down" data-toggle="search">
@@ -186,7 +218,7 @@ class AppHeader extends React.PureComponent { // eslint-disable-line react/prefe
         
         { this._renderLoginPanelModal() }
         
-        <ShopHorizontalMenu/>
+        { this._renderSubMenu() }
       </div>
     );
   }

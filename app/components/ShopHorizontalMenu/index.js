@@ -1,11 +1,19 @@
 /**
-*
-* ShopHorizontalMenu
-*
-*/
+ *
+ * ShopHorizontalMenu
+ *
+ */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Dropdown, DropdownMenu } from 'reactstrap';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import each from 'lodash/each';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import map from 'lodash/map';
+import startCase from 'lodash/startCase';
+import isUndefined from 'lodash/isUndefined';
 
 import { initHorizontalMenu } from "../../resources/js/treela";
 
@@ -15,9 +23,17 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
     
     this.state = {
       isCartOpen: false,
+      menuTree: {}
     };
     
     this._toggleDropdown = this._toggleDropdown.bind(this);
+    this._processMenuTree = this._processMenuTree.bind(this);
+    this._renderSubMenu = this._renderSubMenu.bind(this);
+  }
+  
+  componentWillMount() {
+    const { menu } = this.props;
+    this.setState({menuTree: this._processMenuTree(menu)});
   }
   
   componentDidMount() {
@@ -25,7 +41,7 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
   }
   
   static propTypes = {
-  
+    menu: PropTypes.object.isRequired,
   };
   
   _toggleDropdown(key) {
@@ -34,8 +50,83 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
     }
   }
   
+  _processMenuTree(input) {
+    let data = !isArray(input.toJS()) ? [] : input.toJS();
+    let menuTree = {};
+    
+    each(data, (item) => {
+      menuTree[item.name] = item.parent;
+    });
+    
+    return menuTree;
+  }
+  
+  _buildMenuTree() {
+    let menu = {};
+    
+    return {
+      add: (menuTree, value) => {
+        let currentMenu = value;
+        let arr = [startCase(value)];
+        
+        while (menuTree[currentMenu] !== '' && !isUndefined(menuTree[menuTree[currentMenu]])) {
+          currentMenu = menuTree[currentMenu];
+          arr.push(startCase(currentMenu));
+        }
+        
+        arr = arr.reverse();
+        
+        if (!get(menu, arr.join('.'), false)) {
+          set(menu, arr.join('.'), {});
+        }
+      },
+      get: (path) => path ? get(menu, path, false) : menu
+    }
+  }
+  
+  _renderSubMenu() {
+    const { menuTree } = this.state;
+    let menu = this._buildMenuTree();
+    
+    each(menuTree, (menuItem, key) => {
+      menu.add(menuTree, key);
+    });
+    
+    function recurseMenu(value, key, isRoot) {
+      if (isEmpty(value)) {
+        return (
+          <li key={key} className="">
+            <a href="#">{key}</a>
+          </li>
+        )
+      }
+      
+      return (
+        <li key={key} className="">
+          <a href="javascript:">
+            <span className="title">{key}</span>
+            <span className="arrow" />
+          </a>
+          <ul key={key} className={!isRoot ? 'sub-menu' : ''}>
+            {map(value, (value, key) => recurseMenu(value, key))}
+          </ul>
+        </li>
+      );
+    }
+    
+    return (
+      <ul>
+        {
+          map(menu.get(), (value, key) => {
+            return recurseMenu(value, key, true);
+          })
+        }
+      </ul>
+    );
+  }
+  
   render() {
-    const { isCartOpen } = this.state;
+    const { isCartOpen} = this.state;
     
     return (
       <div className="bg-white">
@@ -44,166 +135,7 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
                data-pages-init='horizontal-menu' data-hide-extra-li="4">
             <a href="#" className="btn-link toggle-sidebar hidden-lg-up pg pg-close" data-toggle="horizontal-menu">
             </a>
-            <ul>
-              <li className="active">
-                <a href="index.html">Dashboard</a>
-              </li>
-              <li>
-                <a href="social.html"><span className="title">Social</span></a>
-              </li>
-              <li>
-                <a href="javascript:;"><span className="title">Calendar</span>
-                  <span className=" arrow"/></a>
-                <ul className="">
-                  <li className="">
-                    <a href="calendar.html">Basic</a>
-                  </li>
-                  <li className="">
-                    <a href="calendar_lang.html">Languages</a>
-                  </li>
-                  <li className="">
-                    <a href="calendar_month.html">Month</a>
-                  </li>
-                  <li className="">
-                    <a href="calendar_lazy.html">Lazy load</a>
-                  </li>
-                  <li className="">
-                    <a href="http://pages.revox.io/dashboard/2.1.0/doc/#calendar" target="_blank">Documentation</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="javascript:;"><span className="title">UI Elements</span>
-                  <span className=" arrow"/></a>
-                <ul className="">
-                  <li className="">
-                    <a href="color.html">Color</a>
-                  </li>
-                  <li className="">
-                    <a href="typography.html">Typography</a>
-                  </li>
-                  <li className="">
-                    <a href="icons.html">Icons</a>
-                  </li>
-                  <li className="">
-                    <a href="buttons.html">Buttons</a>
-                  </li>
-                  <li className="">
-                    <a href="notifications.html">Notifications</a>
-                  </li>
-                  <li className="">
-                    <a href="modals.html">Modals</a>
-                  </li>
-                  <li className="">
-                    <a href="progress.html">Progress &amp; Activity</a>
-                  </li>
-                  <li className="">
-                    <a href="tabs_accordian.html">Tabs &amp; Accordions</a>
-                  </li>
-                  <li className="">
-                    <a href="sliders.html">Sliders</a>
-                  </li>
-                  <li className="">
-                    <a href="tree_view.html">Tree View</a>
-                  </li>
-                  <li className="">
-                    <a href="nestables.html">Nestable</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="javascript:;">
-                  <span className="title">Forms</span>
-                  <span className=" arrow"/>
-                </a>
-                <ul className="">
-                  <li className="">
-                    <a href="form_elements.html">Form Elements</a>
-                  </li>
-                  <li className="">
-                    <a href="form_layouts.html">Form Layouts</a>
-                  </li>
-                  <li className="">
-                    <a href="form_wizard.html">Form Wizard</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="builder.html">
-                  <span className="title">Builder</span>
-                </a>
-              </li>
-              <li>
-                <a href="cards.html">
-                  <span className="title">Cards</span>
-                </a>
-              </li>
-              <li>
-                <a href="views.html">
-                  <span className="title">Views</span>
-                </a>
-              </li>
-              <li>
-                <a href="javascript:;"><span className="title">Tables</span>
-                  <span className=" arrow"></span></a>
-                <ul className="">
-                  <li className="">
-                    <a href="tables.html">Basic Tables</a>
-                  </li>
-                  <li className="">
-                    <a href="datatables.html">Data Tables</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="javascript:;"><span className="title">Maps</span>
-                  <span className=" arrow"></span></a>
-                <ul className="">
-                  <li className="">
-                    <a href="google_map.html">Google Maps</a>
-                  </li>
-                  <li className="">
-                    <a href="vector_map.html">Vector Maps</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="charts.html"><span className="title">Charts</span></a>
-              </li>
-              <li>
-                <a href="javascript:;"><span className="title">Extra</span>
-                  <span className=" arrow"></span></a>
-                <ul className="">
-                  <li className="">
-                    <a href="invoice.html">Invoice</a>
-                  </li>
-                  <li className="">
-                    <a href="404.html">404 Page</a>
-                  </li>
-                  <li className="">
-                    <a href="500.html">500 Page</a>
-                  </li>
-                  <li className="">
-                    <a href="blank_template.html">Blank Page</a>
-                  </li>
-                  <li className="">
-                    <a href="login.html">Login</a>
-                  </li>
-                  <li className="">
-                    <a href="register.html">Register</a>
-                  </li>
-                  <li className="">
-                    <a href="lock_screen.html">Lockscreen</a>
-                  </li>
-                  <li className="">
-                    <a href="gallery.html">Gallery</a>
-                  </li>
-                  <li className="">
-                    <a href="timeline.html">Timeline</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+            { this._renderSubMenu() }
             <Dropdown isOpen={isCartOpen} toggle={this._toggleDropdown('isCartOpen')}
                       className="shopping-cart d-flex justify-content-center align-content-center">
               <div id="notification-center" className="clickable"
@@ -215,7 +147,7 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
                   <span className="bubble hidden-md-down"/>
                 </a>
               </div>
-          
+              
               <DropdownMenu>
                 <div className="notification-panel">
                   <div className="notification-body scrollable">
@@ -246,12 +178,12 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
                           </div>
                         </div>
                       </div>
-                  
+                      
                       <div className="option" data-toggle="tooltip" data-placement="left" title="mark as read">
                         <a href="#" className="mark"/>
                       </div>
                     </div>
-                
+                    
                     <div className="notification-item  clearfix">
                       <div className="heading">
                         <a href="#" className="text-danger pull-left">
@@ -261,12 +193,12 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
                         </a>
                         <span className="pull-right time">2 mins ago</span>
                       </div>
-                  
+                      
                       <div className="option">
                         <a href="#" className="mark"/>
                       </div>
                     </div>
-                
+                    
                     <div className="notification-item  clearfix">
                       <div className="heading">
                         <a href="#" className="text-warning-dark pull-left">
@@ -276,12 +208,12 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
                         </a>
                         <span className="pull-right time">yesterday</span>
                       </div>
-                  
+                      
                       <div className="option">
                         <a href="#" className="mark"/>
                       </div>
                     </div>
-                
+                    
                     <div className="notification-item unread clearfix">
                       <div className="heading">
                         <div className="thumbnail-wrapper d24 circular b-white m-r-5 b-a b-white m-t-10 m-r-10">
@@ -294,13 +226,13 @@ class ShopHorizontalMenu extends React.PureComponent { // eslint-disable-line re
                         </a>
                         <span className="pull-right time">11:00pm</span>
                       </div>
-                  
+                      
                       <div className="option" data-toggle="tooltip" data-placement="left" title="mark as read">
                         <a href="#" className="mark"/>
                       </div>
                     </div>
                   </div>
-              
+                  
                   <div className="notification-footer text-center">
                     <a href="#" className="">Read all notifications</a>
                     <a data-toggle="refresh" className="portlet-refresh text-black pull-right" href="#">
