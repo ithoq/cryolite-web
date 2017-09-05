@@ -16,7 +16,7 @@ const selectAccountPageDomain = () => (state) => state.get('accountPage');
 
 const makeSelectAccountPage = () => createSelector(
   selectAccountPageDomain(),
-  (substate) => substate.toJS()
+  (subState) => subState
 );
 
 export default makeSelectAccountPage;

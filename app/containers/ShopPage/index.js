@@ -95,7 +95,14 @@ export class ShopPage extends React.PureComponent { // eslint-disable-line react
     return (
       <section>
         {this._renderAppHeader()}
-        {React.Children.toArray(children)}
+        
+        <div className="page-container ">
+          <div className="page-content-wrapper ">
+            <div className="content ">
+              {React.Children.toArray(children)}
+            </div>
+          </div>
+        </div>
       </section>
     );
   }

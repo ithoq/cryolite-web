@@ -25,3 +25,12 @@
 .shopping-cart .bubble {
   top: 8px !important;
 }
+
+.jumbotron.account-cover {
+  height: 30vh !important;
+}
+
+.jumbotron .particles {
+  height: 100%;
+  background-color: #FE9700;
+}
